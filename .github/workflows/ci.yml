@@ -87,9 +87,7 @@ jobs:
       - name: Create basic test file if not exists
         run: |
           if [ ! -f tests/test_basic.py ]; then
-            echo "import pytest
-def test_placeholder():
-    assert True" > tests/test_basic.py
+            printf 'import pytest\ndef test_placeholder():\n    assert True\n' > tests/test_basic.py
           fi
 
       - name: Run tests
