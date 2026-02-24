@@ -3,9 +3,15 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from models.schemas import (ChatRequest, ChatResponse, ContextSearchRequest,
-                            ContextSearchResponse, MemoryResponse,
-                            PromptRefineRequest, PromptRefineResponse)
+from models.schemas import (
+    ChatRequest,
+    ChatResponse,
+    ContextSearchRequest,
+    ContextSearchResponse,
+    MemoryResponse,
+    PromptRefineRequest,
+    PromptRefineResponse,
+)
 from orchestrator import orchestrator
 from services import context_service, memory_service, prompt_service
 

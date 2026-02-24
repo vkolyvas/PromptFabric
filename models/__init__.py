@@ -1,6 +1,12 @@
-from models.schemas import (ChatRequest, ChatResponse, ContextSearchRequest,
-                            ContextSearchResponse, MemoryResponse,
-                            PromptRefineRequest, PromptRefineResponse)
+from models.schemas import (
+    ChatRequest,
+    ChatResponse,
+    ContextSearchRequest,
+    ContextSearchResponse,
+    MemoryResponse,
+    PromptRefineRequest,
+    PromptRefineResponse,
+)
 
 __all__ = [
     "ChatRequest",

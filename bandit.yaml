@@ -1,0 +1,9 @@
+exclude:
+  - tests
+  - venv
+  - .venv
+
+ignore:
+  - B104  # hardcoded_bind_all_interfaces - acceptable for local dev
+  - B110  # try_except_pass - acceptable for exception handling
+  - B101  # assert_used - acceptable in tests
