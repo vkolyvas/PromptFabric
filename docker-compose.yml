@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - LM_STUDIO_URL=http://host.docker.internal:1234/v1/chat/completions
+      - VECTOR_DB_TYPE=chroma
+      - SQLITE_DB_PATH=/data/memory.db
+    volumes:
+      - ./data:/data
+      - ./chroma_data:/chroma_data
+    depends_on:
+      - chromadb
+    command: uvicorn api_gateway.main:app --host 0.0.0.0 --port 8000
+
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./chroma_data:/chroma_data
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - ./qdrant_data:/qdrant/storage

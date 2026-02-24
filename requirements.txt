@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+chromadb
+qdrant-client
+sqlalchemy
+pydantic
+python-dotenv
+requests
