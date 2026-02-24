@@ -57,7 +57,7 @@ jobs:
 
       - name: Run Bandit security scan
         run: |
-          bandit -r .
+          bandit -c bandit.yaml -r .
 
       - name: Run Safety dependency check
         run: |
