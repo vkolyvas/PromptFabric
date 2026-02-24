@@ -1,5 +1,7 @@
+from typing import Any, Dict, List, Optional
+
 import requests
-from typing import List, Dict, Any, Optional
+
 from config.settings import settings
 
 
@@ -15,7 +17,7 @@ class LLMGateway:
         model: Optional[str] = None,
         temperature: float = 0.7,
         max_tokens: int = 2048,
-        system_prompt: Optional[str] = None
+        system_prompt: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Send chat completion request to LM Studio"""
 
@@ -29,14 +31,12 @@ class LLMGateway:
             "model": model or "gemma-3-4b-it",
             "messages": full_messages,
             "temperature": temperature,
-            "max_tokens": max_tokens
+            "max_tokens": max_tokens,
         }
 
         try:
             response = requests.post(
-                f"{self.base_url}/chat/completions",
-                json=payload,
-                timeout=120
+                f"{self.base_url}/chat/completions", json=payload, timeout=120
             )
             response.raise_for_status()
             result = response.json()
@@ -45,7 +45,7 @@ class LLMGateway:
                 "content": result["choices"][0]["message"]["content"],
                 "model": result.get("model", model),
                 "usage": result.get("usage", {}),
-                "finish_reason": result["choices"][0].get("finish_reason")
+                "finish_reason": result["choices"][0].get("finish_reason"),
             }
         except requests.exceptions.RequestException as e:
             raise Exception(f"LLM request failed: {str(e)}")
@@ -56,7 +56,7 @@ class LLMGateway:
         system_prompt: Optional[str] = None,
         model: Optional[str] = None,
         temperature: float = 0.7,
-        max_tokens: int = 2048
+        max_tokens: int = 2048,
     ) -> str:
         """Simple generation method"""
         messages = [{"role": "user", "content": prompt}]
@@ -65,7 +65,7 @@ class LLMGateway:
             system_prompt=system_prompt,
             model=model,
             temperature=temperature,
-            max_tokens=max_tokens
+            max_tokens=max_tokens,
         )
         return result["content"]
 

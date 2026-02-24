@@ -1,5 +1,5 @@
-from orchestrator import memory_manager
 from models.schemas import MemoryResponse
+from orchestrator import memory_manager
 
 
 class MemoryService:
@@ -10,9 +10,7 @@ class MemoryService:
         messages = memory_manager.get_messages(session_id)
 
         return MemoryResponse(
-            session_id=session_id,
-            messages=messages,
-            total_count=len(messages)
+            session_id=session_id, messages=messages, total_count=len(messages)
         )
 
     def create_session(self, session_id: str = None) -> str:

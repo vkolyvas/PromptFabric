@@ -1,9 +1,10 @@
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
+from config.settings import settings
 from llm_gateway import llm_gateway
-from orchestrator.prompt_refiner import prompt_refiner
 from orchestrator.context_builder import context_builder
 from orchestrator.memory_manager import memory_manager
-from config.settings import settings
+from orchestrator.prompt_refiner import prompt_refiner
 
 
 class PromptOrchestrator:
@@ -21,7 +22,7 @@ class PromptOrchestrator:
         session_id: Optional[str] = None,
         model: Optional[str] = None,
         temperature: float = 0.7,
-        max_tokens: int = 2048
+        max_tokens: int = 2048,
     ) -> Dict[str, Any]:
         """Main orchestration pipeline"""
 
@@ -53,7 +54,7 @@ class PromptOrchestrator:
                 model=model or settings.generator_model,
                 system_prompt=settings.generator_system_prompt,
                 temperature=temperature,
-                max_tokens=max_tokens
+                max_tokens=max_tokens,
             )
 
             content = response["content"]
@@ -67,7 +68,7 @@ class PromptOrchestrator:
                 "session_id": session_id,
                 "model": response.get("model", settings.generator_model),
                 "refined_prompt": refined_prompt,
-                "context_used": len(context_results) > 0
+                "context_used": len(context_results) > 0,
             }
 
         except Exception as e:
@@ -75,7 +76,7 @@ class PromptOrchestrator:
                 "response": f"Error processing request: {str(e)}",
                 "session_id": session_id,
                 "model": model or settings.generator_model,
-                "error": True
+                "error": True,
             }
 
     def refine_prompt(self, prompt: str, context: Optional[str] = None) -> str:

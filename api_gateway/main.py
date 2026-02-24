@@ -1,23 +1,18 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 
-from models.schemas import (
-    ChatRequest,
-    ChatResponse,
-    PromptRefineRequest,
-    PromptRefineResponse,
-    ContextSearchRequest,
-    ContextSearchResponse,
-    MemoryResponse
-)
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+
+from models.schemas import (ChatRequest, ChatResponse, ContextSearchRequest,
+                            ContextSearchResponse, MemoryResponse,
+                            PromptRefineRequest, PromptRefineResponse)
 from orchestrator import orchestrator
-from services import prompt_service, context_service, memory_service
+from services import context_service, memory_service, prompt_service
 
 app = FastAPI(
     title="PromptFabric API",
     description="Local LLM Orchestration System",
-    version="0.1.0"
+    version="0.1.0",
 )
 
 # Enable CORS
@@ -45,13 +40,13 @@ async def chat(request: ChatRequest):
             session_id=request.session_id,
             model=request.model,
             temperature=request.temperature,
-            max_tokens=request.max_tokens
+            max_tokens=request.max_tokens,
         )
 
         return ChatResponse(
             response=result["response"],
             session_id=result["session_id"],
-            model=result["model"]
+            model=result["model"],
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -109,5 +104,7 @@ async def delete_session(session_id: str):
 
 if __name__ == "__main__":
     import uvicorn
+
     from config.settings import settings
+
     uvicorn.run(app, host=settings.api_host, port=settings.api_port)

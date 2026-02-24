@@ -1,5 +1,5 @@
-from llm_gateway import llm_gateway
 from config.settings import settings
+from llm_gateway import llm_gateway
 
 
 class PromptRefiner:
@@ -36,7 +36,7 @@ Refined prompt:"""
                 system_prompt=self.system_prompt,
                 model=settings.refiner_model,
                 temperature=0.5,
-                max_tokens=1024
+                max_tokens=1024,
             )
             return response.strip()
         except Exception as e:

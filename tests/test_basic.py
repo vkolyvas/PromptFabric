@@ -1,4 +1,5 @@
 import pytest
+
 from models.schemas import ChatRequest, PromptRefineRequest
 
 

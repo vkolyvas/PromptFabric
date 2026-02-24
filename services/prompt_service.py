@@ -1,5 +1,5 @@
-from orchestrator import prompt_refiner
 from models.schemas import PromptRefineRequest, PromptRefineResponse
+from orchestrator import prompt_refiner
 
 
 class PromptService:
@@ -10,8 +10,7 @@ class PromptService:
         refined = prompt_refiner.refine(request.prompt, request.context)
 
         return PromptRefineResponse(
-            refined_prompt=refined,
-            original_prompt=request.prompt
+            refined_prompt=refined, original_prompt=request.prompt
         )
 
 

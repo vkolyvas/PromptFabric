@@ -1,8 +1,9 @@
-import sqlite3
 import json
+import sqlite3
 import uuid
-from typing import List, Dict, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 from config.settings import settings
 
 
@@ -52,7 +53,7 @@ class MemoryManager:
 
         cursor.execute(
             "INSERT OR IGNORE INTO sessions (session_id, created_at, updated_at) VALUES (?, ?, ?)",
-            (session_id, now, now)
+            (session_id, now, now),
         )
 
         conn.commit()
@@ -67,12 +68,11 @@ class MemoryManager:
 
         cursor.execute(
             "INSERT INTO messages (session_id, role, content, created_at) VALUES (?, ?, ?, ?)",
-            (session_id, role, content, now)
+            (session_id, role, content, now),
         )
 
         cursor.execute(
-            "UPDATE sessions SET updated_at = ? WHERE session_id = ?",
-            (now, session_id)
+            "UPDATE sessions SET updated_at = ? WHERE session_id = ?", (now, session_id)
         )
 
         conn.commit()
@@ -86,16 +86,12 @@ class MemoryManager:
         cursor.execute(
             """SELECT role, content, created_at FROM messages
                WHERE session_id = ? ORDER BY created_at DESC LIMIT ?""",
-            (session_id, limit)
+            (session_id, limit),
         )
 
         messages = []
         for row in cursor.fetchall():
-            messages.append({
-                "role": row[0],
-                "content": row[1],
-                "created_at": row[2]
-            })
+            messages.append({"role": row[0], "content": row[1], "created_at": row[2]})
 
         conn.close()
         return list(reversed(messages))

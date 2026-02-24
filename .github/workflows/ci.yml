@@ -79,16 +79,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install pytest pytest-cov
+          pip install pytest pytest-cov pydantic-settings
 
-      - name: Create test directory
-        run: mkdir -p tests
-
-      - name: Create basic test file if not exists
-        run: |
-          if [ ! -f tests/test_basic.py ]; then
-            printf 'import pytest\ndef test_placeholder():\n    assert True\n' > tests/test_basic.py
-          fi
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
 
       - name: Run tests
         run: |

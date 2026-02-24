@@ -1,5 +1,5 @@
-from typing import Dict, Any, Optional
 import re
+from typing import Any, Dict, Optional
 
 
 class ResponseFormatter:
@@ -27,22 +27,22 @@ class ResponseFormatter:
     def _format_plain(text: str) -> str:
         """Strip markdown formatting"""
         # Remove markdown syntax
-        text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)
-        text = re.sub(r'\*(.+?)\*', r'\1', text)
-        text = re.sub(r'`(.+?)`', r'\1', text)
-        text = re.sub(r'```[\s\S]*?```', '', text)
+        text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)
+        text = re.sub(r"\*(.+?)\*", r"\1", text)
+        text = re.sub(r"`(.+?)`", r"\1", text)
+        text = re.sub(r"```[\s\S]*?```", "", text)
         return text.strip()
 
     @staticmethod
     def _format_json(text: str) -> str:
         """Extract and format JSON from response"""
         # Try to extract JSON from markdown code blocks
-        match = re.search(r'```(?:json)?\s*(\{[\s\S]*?\})\s*```', text)
+        match = re.search(r"```(?:json)?\s*(\{[\s\S]*?\})\s*```", text)
         if match:
             return match.group(1)
 
         # Try to find raw JSON
-        match = re.search(r'(\{[\s\S]*?\})', text)
+        match = re.search(r"(\{[\s\S]*?\})", text)
         if match:
             return match.group(1)
 
