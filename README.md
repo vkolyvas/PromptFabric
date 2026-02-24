@@ -32,8 +32,8 @@ pip install -r requirements.txt
 ### Running the Application
 
 ```bash
-# Run API Gateway
-uvicorn api_gateway.main:app --host 0.0.0.0 --port 8000
+# Run API Gateway (port 8030)
+uvicorn api_gateway.main:app --host 0.0.0.0 --port 8030
 
 # Or run all services via Docker
 docker-compose up

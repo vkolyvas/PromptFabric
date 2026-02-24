@@ -1,3 +1,15 @@
-from llm_gateway.client import LLMGateway, llm_gateway
+from llm_gateway.client import (
+    LMStudioGateway,
+    LLMGateway,
+    OllamaGateway,
+    get_llm_gateway,
+    llm_gateway,
+)
 
-__all__ = ["LLMGateway", "llm_gateway"]
+__all__ = [
+    "LLMGateway",
+    "LMStudioGateway",
+    "OllamaGateway",
+    "get_llm_gateway",
+    "llm_gateway",
+]

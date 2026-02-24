@@ -4,9 +4,12 @@ services:
   api:
     build: .
     ports:
-      - "8000:8000"
+      - "8030:8030"
     environment:
+      - LLM_PROVIDER=lm_studio  # or "ollama"
       - LM_STUDIO_URL=http://host.docker.internal:1234/v1/chat/completions
+      - OLLAMA_URL=http://host.docker.internal:11434
+      - OLLAMA_MODEL=llama3.2
       - VECTOR_DB_TYPE=chroma
       - SQLITE_DB_PATH=/data/memory.db
     volumes:
@@ -14,7 +17,16 @@ services:
       - ./chroma_data:/chroma_data
     depends_on:
       - chromadb
-    command: uvicorn api_gateway.main:app --host 0.0.0.0 --port 8000
+    command: uvicorn api_gateway.main:app --host 0.0.0.0 --port 8030
+
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "3030:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - api
 
   chromadb:
     image: chromadb/chroma:latest

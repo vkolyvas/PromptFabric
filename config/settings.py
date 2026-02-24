@@ -6,10 +6,17 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """Application settings"""
 
+    # LLM Provider: "lm_studio" or "ollama"
+    llm_provider: str = "lm_studio"
+
     # LM Studio Configuration
     lm_studio_url: str = "http://localhost:1234/v1/chat/completions"
 
-    # Model Configuration
+    # Ollama Configuration
+    ollama_url: str = "http://localhost:11434"
+    ollama_model: str = "llama3.2"
+
+    # Model Configuration (used for LM Studio)
     refiner_model: str = "gemma-3-4b-it"
     generator_model: str = "deepseek-coder-r1-7b"
     validator_model: str = "phi-3-mini-128k"
@@ -24,7 +31,7 @@ class Settings(BaseSettings):
 
     # API Settings
     api_host: str = "0.0.0.0"
-    api_port: int = 8000
+    api_port: int = 8030
 
     # Prompt Templates
     refiner_system_prompt: str = """You are a prompt refinement expert.

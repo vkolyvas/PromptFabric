@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PromptFabric is a local LLM orchestration system that replicates cloud-level AI behavior using local models. It places an intelligent orchestration layer between users and local LLMs (via LM Studio) to achieve production-quality responses.
+PromptFabric is a local LLM orchestration system that replicates cloud-level AI behavior using local models. It places an intelligent orchestration layer between users and local LLMs (via LM Studio or Ollama) to achieve production-quality responses.
 
 ## Architecture
 
@@ -37,13 +37,16 @@ The Prompt Orchestrator is the "brain" that:
 pip install fastapi uvicorn chromadb qdrant sqlalchemy redis
 
 # Start LM Studio with models loaded
-# Ensure LM Studio API is running at http://localhost:1234/v1/chat/completions
+# OR start Ollama: ollama serve
 ```
 
 ### Running the Application
 ```bash
-# Run API Gateway
-uvicorn api_gateway.main:app --host 0.0.0.0 --port 8000
+# Run API Gateway (backend on port 8030)
+uvicorn api_gateway.main:app --host 0.0.0.0 --port 8030
+
+# Serve frontend on port 3030 (separate terminal)
+cd frontend && python3 -m http.server 3030
 
 # Or run all services via Docker
 docker-compose up
@@ -65,12 +68,38 @@ Recommended model assignments:
 - **Main Generator**: DeepSeek-Coder R1 7B
 - **Validator**: Phi-3 Mini (small validation model)
 
+## LLM Provider Configuration
+
+Set the provider via environment variable `LLM_PROVIDER`:
+
+### LM Studio (default)
+```bash
+export LLM_PROVIDER=lm_studio
+export LM_STUDIO_URL=http://localhost:1234/v1/chat/completions
+```
+
+### Ollama
+```bash
+export LLM_PROVIDER=ollama
+export OLLAMA_URL=http://localhost:11434
+export OLLAMA_MODEL=llama3.2
+```
+
 ## LM Studio Integration
 
 Connect to local models via:
 ```
 http://localhost:1234/v1/chat/completions
 ```
+
+## Ollama Integration
+
+Ollama runs by default on:
+```
+http://localhost:11434
+```
+
+Use the `OllamaGateway` class or set `LLM_PROVIDER=ollama` environment variable.
 
 ## Data Storage
 
