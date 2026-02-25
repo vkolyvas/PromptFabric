@@ -93,9 +93,19 @@ async def get_memory(session_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/memory/{session_id}")
-async def create_session(session_id: Optional[str] = None):
+@app.post("/memory")
+async def create_session():
     """Create a new session"""
+    try:
+        new_session_id = memory_service.create_session()
+        return {"session_id": new_session_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/memory/{session_id}")
+async def create_session_with_id(session_id: Optional[str] = None):
+    """Create a new session with optional custom ID"""
     try:
         new_session_id = memory_service.create_session(session_id)
         return {"session_id": new_session_id}
