@@ -4,6 +4,7 @@ from config.settings import settings
 from llm_gateway import llm_gateway
 from orchestrator.context_builder import context_builder
 from orchestrator.memory_manager import memory_manager
+from orchestrator.response_post_processor import post_processor
 from orchestrator.prompt_refiner import prompt_refiner
 
 
@@ -15,6 +16,7 @@ class PromptOrchestrator:
         self.refiner = prompt_refiner
         self.context = context_builder
         self.memory = memory_manager
+        self.post_processor = post_processor
 
     def process(
         self,
@@ -59,16 +61,27 @@ class PromptOrchestrator:
 
             content = response["content"]
 
+            # Post-process the response
+            processed = self.post_processor.process(
+                response=content,
+                original_prompt=refined_prompt,
+                context=context_text,
+            )
+
+            final_response = processed["response"]
+
             # Store in memory
             self.memory.add_message(session_id, "user", message)
-            self.memory.add_message(session_id, "assistant", content)
+            self.memory.add_message(session_id, "assistant", final_response)
 
             return {
-                "response": content,
+                "response": final_response,
                 "session_id": session_id,
                 "model": response.get("model", settings.generator_model),
                 "refined_prompt": refined_prompt,
                 "context_used": len(context_results) > 0,
+                "validated": processed.get("validated", False),
+                "valid": processed.get("valid", True),
             }
 
         except Exception as e:

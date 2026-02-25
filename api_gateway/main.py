@@ -8,6 +8,7 @@ from config.hardware_detect import (
     get_recommended_models,
     get_recommended_provider,
 )
+from config.settings import settings
 from models.schemas import (
     ChatRequest,
     ChatResponse,
@@ -140,7 +141,35 @@ async def hardware_detect():
         "has_amd_gpu": hardware.has_amd_gpu,
         "recommended_provider": provider,
         "recommended_models": models,
+        "post_processor_enabled": settings.enable_post_processor,
     }
+
+
+@app.get("/settings")
+async def get_settings():
+    """Get current settings"""
+    return {
+        "llm_provider": settings.llm_provider,
+        "generator_model": settings.generator_model,
+        "refiner_model": settings.refiner_model,
+        "validator_model": settings.validator_model,
+        "enable_post_processor": settings.enable_post_processor,
+    }
+
+
+@app.post("/settings")
+async def update_settings(request: dict):
+    """Update settings"""
+    if "enable_post_processor" in request:
+        settings.enable_post_processor = request["enable_post_processor"]
+    if "llm_provider" in request:
+        settings.llm_provider = request["llm_provider"]
+    if "generator_model" in request:
+        settings.generator_model = request["generator_model"]
+    if "refiner_model" in request:
+        settings.refiner_model = request["refiner_model"]
+
+    return {"status": "updated", "settings": await get_settings()}
 
 
 @app.post("/llm/start-ollama")

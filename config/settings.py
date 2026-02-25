@@ -71,6 +71,9 @@ class Settings(BaseSettings):
     generator_model: str = "llama3.2:3b"
     validator_model: str = "phi3:3.8b"
 
+    # Post-Processor Configuration
+    enable_post_processor: bool = True
+
     # Vector Database
     vector_db_type: str = "chroma"
     chroma_persist_directory: str = "./chroma_data"

@@ -128,13 +128,19 @@ def get_recommended_models(
     """Recommend models based on hardware and provider."""
     ram = hardware.total_ram_gb
 
+    # NVIDIA GPU with LM Studio (VRAM focused)
     if hardware.has_nvidia_gpu and provider == "lm_studio":
-        # GPU with good VRAM
-        if ram >= 24:
+        if ram >= 32:
             return {
-                "generator": "deepseek-coder-r1-7b",
+                "generator": "deepseek-coder-r1-14b",
                 "refiner": "gemma-3-4b-it",
                 "validator": "phi-4-mini",
+            }
+        elif ram >= 24:
+            return {
+                "generator": "deepseek-coder-r1-7b",
+                "refiner": "gemma-2b-it",
+                "validator": "phi-3-mini",
             }
         elif ram >= 16:
             return {
@@ -148,9 +154,16 @@ def get_recommended_models(
                 "refiner": "gemma:2b",
                 "validator": "phi3:3.8b",
             }
-    elif hardware.has_apple_silicon or hardware.has_amd_gpu:
-        # Apple Silicon or AMD GPU
-        if ram >= 16:
+
+    # Apple Silicon with Ollama (Metal GPU)
+    elif hardware.has_apple_silicon and provider == "ollama":
+        if ram >= 24:
+            return {
+                "generator": "llama3.2:3b",
+                "refiner": "gemma:2b",
+                "validator": "phi3:3.8b",
+            }
+        elif ram >= 16:
             return {
                 "generator": "llama3.2:3b",
                 "refiner": "gemma:2b",
@@ -162,25 +175,47 @@ def get_recommended_models(
                 "refiner": "gemma:1b",
                 "validator": "phi3:3.8b",
             }
-    else:
-        # CPU only
-        if ram >= 16:
+
+    # AMD GPU with Ollama (ROCm)
+    elif hardware.has_amd_gpu and provider == "ollama":
+        if ram >= 24:
             return {
                 "generator": "llama3.2:3b",
                 "refiner": "gemma:2b",
                 "validator": "phi3:3.8b",
             }
-        elif ram >= 8:
+        elif ram >= 16:
+            return {
+                "generator": "llama3.2:3b",
+                "refiner": "gemma:2b",
+                "validator": "phi3:3.8b",
+            }
+        else:
             return {
                 "generator": "llama3.2:1b",
                 "refiner": "gemma:1b",
+                "validator": "phi3:3.8b",
+            }
+
+    # CPU Only
+    else:
+        if ram >= 16:
+            return {
+                "generator": "llama3.2:1b",
+                "refiner": "gemma:1b",
+                "validator": "phi3:3.8b",
+            }
+        elif ram >= 8:
+            return {
+                "generator": "llama3.2:1b",
+                "refiner": "tinyllama",
                 "validator": "phi3:3.8b",
             }
         else:
             return {
                 "generator": "llama3.2:1b",
                 "refiner": "tinyllama",
-                "validator": "phi3:3.8b",
+                "validator": "tinyllama",
             }
 
 
