@@ -3,6 +3,11 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from config.hardware_detect import (
+    detect_hardware,
+    get_recommended_models,
+    get_recommended_provider,
+)
 from models.schemas import (
     ChatRequest,
     ChatResponse,
@@ -106,6 +111,137 @@ async def delete_session(session_id: str):
         return {"status": "deleted", "session_id": session_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# Hardware & LLM Management Endpoints
+@app.get("/hardware/detect")
+async def hardware_detect():
+    """Detect hardware and return recommendations"""
+    hardware = detect_hardware()
+    provider = get_recommended_provider(hardware)
+    models = get_recommended_models(provider, hardware)
+
+    return {
+        "os_type": hardware.os_type,
+        "total_ram_gb": hardware.total_ram_gb,
+        "cpu_cores": hardware.cpu_cores,
+        "has_nvidia_gpu": hardware.has_nvidia_gpu,
+        "has_apple_silicon": hardware.has_apple_silicon,
+        "has_amd_gpu": hardware.has_amd_gpu,
+        "recommended_provider": provider,
+        "recommended_models": models,
+    }
+
+
+@app.post("/llm/start-ollama")
+async def start_ollama():
+    """Start Ollama service"""
+    import subprocess
+    import os
+
+    try:
+        # Check if already running
+        import requests
+        try:
+            r = requests.get("http://localhost:11434/api/tags", timeout=2)
+            if r.status_code == 200:
+                return {"success": True, "message": "Ollama already running"}
+        except:
+            pass
+
+        # Try to start ollama serve
+        subprocess.Popen(
+            ["ollama", "serve"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+        return {"success": True, "message": "Ollama started"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+
+@app.post("/llm/start-lmstudio")
+async def start_lmstudio():
+    """Open LM Studio application"""
+    import subprocess
+    import platform
+
+    try:
+        system = platform.system()
+        if system == "Darwin":
+            subprocess.run(["open", "-a", "LM Studio"], check=True)
+        elif system == "Linux":
+            subprocess.run(["lm-studio"], check=False)
+        elif system == "Windows":
+            subprocess.run(["start", "lm-studio"], shell=True, check=False)
+        return {"success": True, "message": "LM Studio opened"}
+    except Exception as e:
+        return {"success": False, "message": f"Open LM Studio manually: {str(e)}"}
+
+
+@app.post("/llm/pull-models")
+async def pull_models(request: dict):
+    """Pull models for the selected provider"""
+    import subprocess
+    import requests
+
+    provider = request.get("provider", "ollama")
+    generator = request.get("generator_model", "llama3.2:3b")
+    refiner = request.get("refiner_model", "gemma:2b")
+
+    if provider != "ollama":
+        return {"success": False, "message": "For LM Studio, load models in the app"}
+
+    try:
+        # Check if ollama is running
+        try:
+            r = requests.get("http://localhost:11434/api/tags", timeout=2)
+            if r.status_code != 200:
+                return {"success": False, "message": "Start Ollama first"}
+        except:
+            return {"success": False, "message": "Start Ollama first"}
+
+        # Pull models
+        for model in [generator, refiner]:
+            subprocess.run(
+                ["ollama", "pull", model],
+                capture_output=True,
+                timeout=300,
+            )
+
+        return {"success": True, "message": f"Pulled {generator} and {refiner}"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+
+@app.get("/llm/status")
+async def llm_status():
+    """Check LLM provider status"""
+    import requests
+
+    status = {
+        "ollama_running": False,
+        "lm_studio_running": False,
+    }
+
+    # Check Ollama
+    try:
+        r = requests.get("http://localhost:11434/api/tags", timeout=2)
+        if r.status_code == 200:
+            status["ollama_running"] = True
+    except:
+        pass
+
+    # Check LM Studio
+    try:
+        r = requests.get("http://localhost:1234/v1/models", timeout=2)
+        if r.status_code == 200:
+            status["lm_studio_running"] = True
+    except:
+        pass
+
+    return status
 
 
 if __name__ == "__main__":

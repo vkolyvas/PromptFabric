@@ -17,6 +17,42 @@ User → Prompt Refiner → Context Injector → Memory Injector → LLM Gateway
 5. **Response Post-Processor**: Formats, validates, removes hallucinations
 6. **Memory Layer**: Stores conversation history, user preferences in SQLite
 
+### Prompt Flow (Step by Step)
+
+```
+USER INPUT: "How do I fix this bug?"
+│
+├─ STEP 1: MEMORY LAYER (SQLite)
+│  └─ Load conversation history for session
+│
+├─ STEP 2: CONTEXT BUILDER (RAG - ChromaDB/Qdrant)
+│  └─ Search vector DB for relevant docs/code (top K=5)
+│
+├─ STEP 3: PROMPT REFINER (Small Model: gemma:2b)
+│  └─ Transform: "How do I fix this bug?"
+│     → "Explain how to debug a Python application.
+│        Include: 1) Using pdb/IPDB, 2) Print statements,
+│        3) VS Code debugger. Provide examples."
+│
+├─ STEP 4: LLM GATEWAY (Main Model: llama3.2:3b)
+│  └─ Build messages + Send to Ollama/LM Studio → Get response
+│
+├─ STEP 5: RESPONSE POST-PROCESSOR
+│  └─ Format, validate, remove hallucinations
+│
+├─ STEP 6: MEMORY LAYER (Store)
+│  └─ Save user message + assistant response to SQLite
+│
+└─ RESPONSE → User
+```
+
+| Step | Component | Model | Purpose |
+|------|-----------|-------|---------|
+| 1-2 | Memory/Context | N/A | Data retrieval |
+| 3 | Prompt Refiner | gemma:2b | Optimize prompt structure |
+| 4 | LLM Generator | llama3.2:3b | Generate final response |
+| 5 | Post-Processor | N/A | Format/validate |
+
 ## Quick Start
 
 ### Setup
@@ -33,27 +69,61 @@ pip install -r requirements.txt
 
 ```bash
 # Run API Gateway (port 8030)
-uvicorn api_gateway.main:app --host 0.0.0.0 --port 8030
+uvicorn api_gateway.main:app --host 127.0.0.1 --port 8030
+
+# Serve frontend (port 3030) - in separate terminal
+cd frontend && python3 -m http.server 3030
 
 # Or run all services via Docker
 docker-compose up
 ```
 
+The frontend at http://127.0.0.1:3030 provides:
+- Auto hardware detection on load
+- Provider selection (Ollama / LM Studio)
+- One-click model pulling
+- Chat interface with session management
+
 ## API Endpoints
 
+### Chat & Memory
 - `POST /chat` - Main chat endpoint
-- `POST /prompt/refine` - Prompt refinement
-- `POST /context/search` - Context search
 - `GET /memory/{session_id}` - Retrieve conversation memory
 - `POST /memory/{session_id}` - Create new session
 - `DELETE /memory/{session_id}` - Delete session
 
+### Prompt & Context
+- `POST /prompt/refine` - Prompt refinement
+- `POST /context/search` - Context search
+
+### Hardware & LLM Management
+- `GET /hardware/detect` - Detect hardware and get recommendations
+- `POST /llm/start-ollama` - Start Ollama service
+- `POST /llm/start-lmstudio` - Open LM Studio application
+- `POST /llm/pull-models` - Pull models for selected provider
+- `GET /llm/status` - Check if Ollama/LM Studio is running
+
 ## Model Configuration
 
-Recommended model assignments:
-- **Prompt Refiner**: Gemma 3 / TinyLlama (small, fast)
-- **Main Generator**: DeepSeek-Coder R1 7B
-- **Validator**: Phi-3 Mini (small validation model)
+The system auto-detects your hardware and recommends the best provider and models.
+
+### Hardware Recommendations
+
+| Hardware | Recommended Provider | Generator Model | Refiner Model |
+|----------|---------------------|-----------------|---------------|
+| NVIDIA GPU | LM Studio | deepseek-coder-r1-7b | gemma-3-4b-it |
+| Apple Silicon | Ollama | llama3.2:3b | gemma:2b |
+| AMD GPU | Ollama | llama3.2:3b | gemma:2b |
+| CPU Only (16GB+) | Ollama | llama3.2:3b | gemma:2b |
+| CPU Only (<16GB) | Ollama | llama3.2:1b | gemma:1b |
+
+### API Endpoints for LLM Management
+
+- `GET /hardware/detect` - Detect hardware and get recommendations
+- `POST /llm/start-ollama` - Start Ollama service
+- `POST /llm/start-lmstudio` - Open LM Studio
+- `POST /llm/pull-models` - Pull recommended models
+- `GET /llm/status` - Check if Ollama/LM Studio is running
 
 ## LM Studio Integration
 

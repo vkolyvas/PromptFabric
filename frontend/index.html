@@ -17,7 +17,7 @@
             color: #fff;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 2rem;
         }
@@ -29,6 +29,162 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
+        /* Setup Panel */
+        .setup-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .setup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .setup-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .hardware-info {
+            font-size: 0.85rem;
+            color: #aaa;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .hardware-info div {
+            margin: 0.25rem 0;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        .status-badge.nvidia { background: #76b900; color: #000; }
+        .status-badge.apple { background: #a3aaae; color: #000; }
+        .status-badge.amd { background: #ff0000; color: #fff; }
+        .status-badge.cpu { background: #666; color: #fff; }
+
+        /* Provider Buttons */
+        .provider-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .provider-card {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .provider-card:hover {
+            border-color: rgba(0, 217, 255, 0.5);
+        }
+        .provider-card.selected {
+            border-color: #00d9ff;
+            background: rgba(0, 217, 255, 0.1);
+        }
+        .provider-card h3 {
+            margin-bottom: 0.5rem;
+        }
+        .provider-card p {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        .provider-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            color: #1a1a2e;
+        }
+        .btn-primary:hover:not(:disabled) {
+            box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .btn-ollama { border-color: #ff6600; color: #ff6600; }
+        .btn-lmstudio { border-color: #00d9ff; color: #00d9ff; }
+
+        /* Model Select */
+        .model-select {
+            margin-bottom: 1rem;
+        }
+        .model-select label {
+            display: block;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 0.5rem;
+        }
+        .model-select select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1rem;
+        }
+        .model-select select:focus {
+            outline: none;
+            border-color: #00d9ff;
+        }
+
+        /* Status Log */
+        .status-log {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-height: 120px;
+            overflow-y: auto;
+            color: #00ff88;
+            margin-top: 1rem;
+        }
+        .status-log .error { color: #ff4444; }
+        .status-log .info { color: #00d9ff; }
+
+        /* Chat Container */
         .chat-container {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 16px;
@@ -127,13 +283,70 @@
             background: #ff4444 !important;
             color: white;
         }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>PromptFabric</h1>
-        <div class="chat-container">
-            <div id="session-info">Session: <span id="session-id">Creating...</span></div>
+
+        <!-- Setup Panel -->
+        <div class="setup-panel" id="setup-panel">
+            <div class="setup-header">
+                <div class="setup-title">Setup</div>
+                <div id="config-display"></div>
+            </div>
+
+            <div class="hardware-info" id="hardware-info">
+                <div>Detecting hardware...</div>
+            </div>
+
+            <div class="provider-section">
+                <div class="provider-card" id="ollama-card" onclick="selectProvider('ollama')">
+                    <div class="provider-icon">&#128421;</div>
+                    <h3>Ollama</h3>
+                    <p>Best for CPU, Apple Silicon, AMD GPUs</p>
+                </div>
+                <div class="provider-card" id="lmstudio-card" onclick="selectProvider('lm_studio')">
+                    <div class="provider-icon">&#128187;</div>
+                    <h3>LM Studio</h3>
+                    <p>Best for NVIDIA GPUs</p>
+                </div>
+            </div>
+
+            <div class="model-select">
+                <label>Generator Model</label>
+                <select id="generator-model"></select>
+            </div>
+            <div class="model-select">
+                <label>Refiner Model</label>
+                <select id="refiner-model"></select>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-ollama" id="start-ollama-btn" onclick="startOllama()">
+                    Start Ollama
+                </button>
+                <button class="btn btn-lmstudio" id="start-lmstudio-btn" onclick="startLMStudio()">
+                    Open LM Studio
+                </button>
+                <button class="btn btn-primary" id="pull-models-btn" onclick="pullModels()">
+                    Pull Models
+                </button>
+                <button class="btn btn-secondary" id="check-status-btn" onclick="checkStatus()">
+                    Check Status
+                </button>
+            </div>
+
+            <div class="status-log" id="status-log"></div>
+        </div>
+
+        <!-- Chat Panel -->
+        <div class="chat-container" id="chat-panel">
+            <div id="session-info">
+                Session: <span id="session-id">Creating...</span>
+                <span id="provider-status" class="status-badge"></span>
+            </div>
             <div id="messages"></div>
             <div class="input-container">
                 <textarea id="message-input" placeholder="Type your message..." rows="2"></textarea>
@@ -145,11 +358,213 @@
     <script>
         const API_URL = 'http://127.0.0.1:8030';
         let sessionId = null;
+        let selectedProvider = 'ollama';
+        let hardwareInfo = {};
 
         const messagesDiv = document.getElementById('messages');
         const messageInput = document.getElementById('message-input');
         const sendBtn = document.getElementById('send-btn');
         const sessionIdSpan = document.getElementById('session-id');
+        const statusLog = document.getElementById('status-log');
+
+        // Models for each provider and RAM tier
+        const models = {
+            ollama: {
+                high: {
+                    generator: 'llama3.2:3b',
+                    refiner: 'gemma:2b',
+                    validator: 'phi3:3.8b'
+                },
+                low: {
+                    generator: 'llama3.2:1b',
+                    refiner: 'gemma:1b',
+                    validator: 'phi3:3.8b'
+                }
+            },
+            lm_studio: {
+                high: {
+                    generator: 'deepseek-coder-r1-7b',
+                    refiner: 'gemma-3-4b-it',
+                    validator: 'phi-4-mini'
+                },
+                low: {
+                    generator: 'qwen2.5-coder-7b',
+                    refiner: 'gemma-2b-it',
+                    validator: 'phi-3-mini'
+                }
+            }
+        };
+
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = `> ${msg}`;
+            statusLog.appendChild(div);
+            statusLog.scrollTop = statusLog.scrollHeight;
+        }
+
+        async function detectHardware() {
+            try {
+                const response = await fetch(`${API_URL}/hardware/detect`);
+                const data = await response.json();
+                hardwareInfo = data;
+                displayHardwareInfo(data);
+            } catch (error) {
+                log('Backend not responding - using defaults', 'error');
+                displayDefaultHardware();
+            }
+        }
+
+        function displayHardwareInfo(data) {
+            const hwDiv = document.getElementById('hardware-info');
+            let gpuBadge = '';
+            if (data.has_nvidia_gpu) gpuBadge = '<span class="status-badge nvidia">NVIDIA</span>';
+            else if (data.has_apple_silicon) gpuBadge = '<span class="status-badge apple">Apple Silicon</span>';
+            else if (data.has_amd_gpu) gpuBadge = '<span class="status-badge amd">AMD</span>';
+            else gpuBadge = '<span class="status-badge cpu">CPU Only</span>';
+
+            hwDiv.innerHTML = `
+                <div>OS: ${data.os_type}</div>
+                <div>RAM: ${data.total_ram_gb.toFixed(1)} GB</div>
+                <div>GPU: ${gpuBadge}</div>
+            `;
+
+            // Auto-select provider
+            if (data.has_nvidia_gpu) {
+                selectProvider('lm_studio');
+            } else {
+                selectProvider('ollama');
+            }
+
+            // Update config display
+            updateConfigDisplay(data.recommended_provider, data.recommended_models);
+        }
+
+        function displayDefaultHardware() {
+            const hwDiv = document.getElementById('hardware-info');
+            hwDiv.innerHTML = `
+                <div>RAM: Unknown (defaulting to 16GB)</div>
+                <div>GPU: Unknown</div>
+            `;
+            selectProvider('ollama');
+        }
+
+        function updateConfigDisplay(provider, recommendedModels) {
+            const display = document.getElementById('config-display');
+            display.innerHTML = `<span class="status-badge" style="background:#00d9ff;color:#000">${provider.toUpperCase()}</span>`;
+
+            if (recommendedModels) {
+                document.getElementById('generator-model').innerHTML =
+                    `<option value="${recommendedModels.generator}">${recommendedModels.generator}</option>`;
+                document.getElementById('refiner-model').innerHTML =
+                    `<option value="${recommendedModels.refiner}">${recommendedModels.refiner}</option>`;
+            }
+        }
+
+        function selectProvider(provider) {
+            selectedProvider = provider;
+            document.getElementById('ollama-card').classList.toggle('selected', provider === 'ollama');
+            document.getElementById('lmstudio-card').classList.toggle('selected', provider === 'lm_studio');
+
+            // Load models for provider
+            const tier = hardwareInfo.total_ram_gb >= 16 ? 'high' : 'low';
+            const modelSet = models[provider][tier];
+
+            document.getElementById('generator-model').innerHTML =
+                `<option value="${modelSet.generator}">${modelSet.generator}</option>`;
+            document.getElementById('refiner-model').innerHTML =
+                `<option value="${modelSet.refiner}">${modelSet.refiner}</option>`;
+
+            log(`Selected ${provider} with ${tier === 'high' ? '16GB+' : '<16GB'} RAM models`);
+        }
+
+        async function startOllama() {
+            log('Starting Ollama...');
+            try {
+                const response = await fetch(`${API_URL}/llm/start-ollama`, { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    log('Ollama started successfully');
+                    checkStatus();
+                } else {
+                    log(data.message || 'Failed to start Ollama', 'error');
+                }
+            } catch (error) {
+                log('Run "ollama serve" in terminal', 'error');
+            }
+        }
+
+        async function startLMStudio() {
+            log('Opening LM Studio...');
+            try {
+                const response = await fetch(`${API_URL}/llm/start-lmstudio`, { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    log('LM Studio opened - load models in the app');
+                } else {
+                    log(data.message || 'Failed to open LM Studio', 'error');
+                }
+            } catch (error) {
+                log('Open LM Studio manually from applications', 'error');
+            }
+        }
+
+        async function pullModels() {
+            const generator = document.getElementById('generator-model').value;
+            const refiner = document.getElementById('refiner-model').value;
+
+            log(`Pulling models: ${generator}, ${refiner}...`);
+
+            try {
+                const response = await fetch(`${API_URL}/llm/pull-models`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        provider: selectedProvider,
+                        generator_model: generator,
+                        refiner_model: refiner
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    log('Models pulled successfully!');
+                    checkStatus();
+                } else {
+                    log(data.message || 'Failed to pull models', 'error');
+                }
+            } catch (error) {
+                log('Error pulling models: ' + error.message, 'error');
+            }
+        }
+
+        async function checkStatus() {
+            log('Checking LLM status...');
+            try {
+                const response = await fetch(`${API_URL}/llm/status`);
+                const data = await response.json();
+
+                const statusBadge = document.getElementById('provider-status');
+                if (data.ollama_running) {
+                    statusBadge.textContent = 'Ollama Ready';
+                    statusBadge.style.background = '#ff6600';
+                    statusBadge.style.color = '#fff';
+                    log('Ollama is running');
+                }
+                if (data.lm_studio_running) {
+                    statusBadge.textContent = 'LM Studio Ready';
+                    statusBadge.style.background = '#00d9ff';
+                    statusBadge.style.color = '#000';
+                    log('LM Studio is running');
+                }
+                if (!data.ollama_running && !data.lm_studio_running) {
+                    statusBadge.textContent = 'No LLM';
+                    statusBadge.style.background = '#666';
+                    log('No LLM provider running', 'error');
+                }
+            } catch (error) {
+                log('Error checking status: ' + error.message, 'error');
+            }
+        }
 
         async function createSession() {
             try {
@@ -207,7 +622,10 @@
             }
         });
 
+        // Initialize
+        detectHardware();
         createSession();
+        checkStatus();
     </script>
 </body>
 </html>
