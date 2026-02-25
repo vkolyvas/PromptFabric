@@ -1,6 +1,7 @@
 # PromptFabric
 
 A local LLM orchestration system that replicates cloud-level AI behavior using local models. It places an intelligent orchestration layer between users and local LLMs (via LM Studio) to achieve production-quality responses.
+Local models could still infer what you mean to an extent because they’re trained on patterns in language, but without the scale and extra systems behind cloud AI, that inference is usually weaker and depends much more on how you prompt. If a prompt is vague, loosely written, incomplete, or grammatically incorrect, the model closely sticks to the literal input instead of trying to guess your intent and filling in the gaps. This is why people sometimes think a local model is underperforming, when the real difference is how directly it responds to what you actually wrote.
 
 ## Architecture
 
