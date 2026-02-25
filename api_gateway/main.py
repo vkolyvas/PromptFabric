@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 from config.hardware_detect import (
@@ -91,6 +91,41 @@ async def add_context(request: AddContextRequest):
     try:
         context_service.add_context(request.content, request.metadata)
         return {"status": "added", "content": request.content[:100] + "..."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/context/upload")
+async def upload_file(file: UploadFile = File(...)):
+    """Upload and process a file (PDF, DOCX, XLSX, TXT)"""
+    try:
+        filename = file.filename
+
+        # Check file extension
+        allowed_extensions = [".pdf", ".docx", ".xlsx", ".txt", ".md"]
+        ext = filename.lower().split(".")[-1]
+        if f".{ext}" not in allowed_extensions:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported file type. Allowed: {allowed_extensions}",
+            )
+
+        # Read file content
+        content = await file.read()
+
+        result = context_service.add_file(content, filename)
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/context/stats")
+async def get_context_stats():
+    """Get vector store statistics"""
+    try:
+        return context_service.get_stats()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

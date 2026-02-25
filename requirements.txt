@@ -6,3 +6,14 @@ sqlalchemy
 pydantic
 python-dotenv
 requests
+
+# Document processing
+pypdf
+python-docx
+openpyxl
+
+# Text chunking
+langchain-text-splitters
+
+# Embeddings
+sentence-transformers

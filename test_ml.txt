@@ -1,0 +1,28 @@
+Machine Learning Fundamentals
+
+Chapter 1: Introduction to Machine Learning
+
+Machine learning is a subset of artificial intelligence that enables systems to learn and improve from experience without being explicitly programmed. It focuses on developing algorithms that can access data and use it to learn patterns and make decisions.
+
+Types of Machine Learning:
+1. Supervised Learning - Learning from labeled data
+2. Unsupervised Learning - Finding patterns in unlabeled data
+3. Reinforcement Learning - Learning through trial and error
+
+Chapter 2: Neural Networks
+
+A neural network is inspired by the biological neural networks in our brains. It consists of layers of interconnected nodes (neurons):
+- Input layer: Receives the input data
+- Hidden layers: Process the data through weighted connections
+- Output layer: Produces the final prediction
+
+Deep Learning uses multiple hidden layers to learn complex patterns from large amounts of data.
+
+Chapter 3: Common Algorithms
+
+Linear Regression - For predicting continuous values
+Logistic Regression - For binary classification
+Decision Trees - For both classification and regression
+Random Forest - Ensemble of decision trees
+Support Vector Machines (SVM) - For classification tasks
+K-Means Clustering - For unsupervised learning
