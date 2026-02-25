@@ -48,6 +48,7 @@ def detect_hardware() -> HardwareInfo:
 
             kernel32 = ctypes.windll.kernel32
             c_ulong = ctypes.c_ulong
+
             class MEMORYSTATUS(ctypes.Structure):
                 _fields_ = [
                     ("dwLength", c_ulong),
@@ -122,9 +123,7 @@ def get_recommended_provider(hardware: HardwareInfo) -> str:
         return "ollama"  # CPU-only default
 
 
-def get_recommended_models(
-    provider: str, hardware: HardwareInfo
-) -> dict:
+def get_recommended_models(provider: str, hardware: HardwareInfo) -> dict:
     """Recommend models based on hardware and provider."""
     ram = hardware.total_ram_gb
 

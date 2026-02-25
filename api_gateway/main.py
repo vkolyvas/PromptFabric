@@ -181,6 +181,7 @@ async def start_ollama():
     try:
         # Check if already running
         import requests
+
         try:
             r = requests.get("http://localhost:11434/api/tags", timeout=2)
             if r.status_code == 200:
