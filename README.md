@@ -53,6 +53,76 @@ USER INPUT: "How do I fix this bug?"
 | 4 | LLM Generator | llama3.2:3b | Generate final response |
 | 5 | Post-Processor | N/A | Format/validate |
 
+### Document Processing & RAG Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ USER UPLOADS FILE: test_ml.txt (PDF, DOCX, XLSX, TXT)           │
+└─────────────────────────────────┬───────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ STEP 1: DOCUMENT PARSER                                            │
+│ Input:  raw bytes (file)                                           │
+│ Output: Extracted text                                             │
+│   • PDF → pypdf                                                   │
+│   • DOCX → python-docx                                            │
+│   • XLSX → openpyxl                                               │
+│   • TXT/MD → Built-in                                             │
+└─────────────────────────────────┬───────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ STEP 2: TEXT CHUNKING                                              │
+│ Input:  Full text (~2000 chars)                                    │
+│ Output: Chunks (500 chars each, 50 overlap)                         │
+│   Uses: langchain-text-splitters (RecursiveCharacterTextSplitter) │
+└─────────────────────────────────┬───────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ STEP 3: EMBEDDINGS                                                 │
+│ Input:  ["chunk1", "chunk2", "chunk3", "chunk4"]               │
+│ Output: 384-dimensional vectors                                     │
+│   Uses: sentence-transformers (all-MiniLM-L6-v2)                  │
+└─────────────────────────────────┬───────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ STEP 4: VECTOR STORAGE (ChromaDB)                                  │
+│ Storage: chroma_data/                                              │
+│   {id, embedding, document, metadata}                              │
+└─────────────────────────────────┬───────────────────────────────────┘
+                                  │
+                                  ▼
+                    ┌─────────────────────┐
+                    │ {"chunks_added": N} │
+                    └─────────────────────┘
+```
+
+### Full Chat with RAG (After Document Upload)
+
+```
+USER: "what is neural network?"
+│
+├─ MEMORY: Load session history
+├─ CONTEXT BUILDER: Search vector DB for relevant docs
+│  → Returns: Neural Networks chapter (distance: 0.58)
+├─ PROMPT REFINER: Add context to prompt
+│  → "Answer using: Neural Networks chapter content..."
+├─ LLM GATEWAY: Generate response with RAG context
+├─ POST-PROCESSOR: Validate & format
+├─ MEMORY: Store conversation
+└─ RESPONSE → User
+```
+
+### Storage Summary
+
+| Storage | Database | Contents |
+|---------|----------|----------|
+| Memory | SQLite (`memory.db`) | Sessions, chat history |
+| Context | ChromaDB (`chroma_data/`) | Document embeddings for RAG |
+
 ## Quick Start
 
 ### Setup
