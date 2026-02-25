@@ -175,8 +175,8 @@ async def update_settings(request: dict):
 @app.post("/llm/start-ollama")
 async def start_ollama():
     """Start Ollama service"""
-    import subprocess
     import os
+    import subprocess
 
     try:
         # Check if already running
@@ -204,8 +204,8 @@ async def start_ollama():
 @app.post("/llm/start-lmstudio")
 async def start_lmstudio():
     """Open LM Studio application"""
-    import subprocess
     import platform
+    import subprocess
 
     try:
         system = platform.system()
@@ -224,6 +224,7 @@ async def start_lmstudio():
 async def pull_models(request: dict):
     """Pull models for the selected provider"""
     import subprocess
+
     import requests
 
     provider = request.get("provider", "ollama")

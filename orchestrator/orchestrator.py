@@ -4,8 +4,8 @@ from config.settings import settings
 from llm_gateway import llm_gateway
 from orchestrator.context_builder import context_builder
 from orchestrator.memory_manager import memory_manager
-from orchestrator.response_post_processor import post_processor
 from orchestrator.prompt_refiner import prompt_refiner
+from orchestrator.response_post_processor import post_processor
 
 
 class PromptOrchestrator:
