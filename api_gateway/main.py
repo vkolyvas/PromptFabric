@@ -10,6 +10,7 @@ from config.hardware_detect import (
 )
 from config.settings import settings
 from models.schemas import (
+    AddContextRequest,
     ChatRequest,
     ChatResponse,
     ContextSearchRequest,
@@ -80,6 +81,16 @@ async def search_context(request: ContextSearchRequest):
     try:
         result = context_service.search(request)
         return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/context/add")
+async def add_context(request: AddContextRequest):
+    """Add context to vector store"""
+    try:
+        context_service.add_context(request.content, request.metadata)
+        return {"status": "added", "content": request.content[:100] + "..."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

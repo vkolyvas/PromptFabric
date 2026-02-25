@@ -50,6 +50,13 @@ class ContextSearchResponse(BaseModel):
     query: str
 
 
+class AddContextRequest(BaseModel):
+    """Request model for adding context"""
+
+    content: str
+    metadata: Optional[Dict[str, Any]] = None
+
+
 class MemoryResponse(BaseModel):
     """Response model for memory retrieval"""
 
